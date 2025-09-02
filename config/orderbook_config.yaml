@@ -1,0 +1,18 @@
+# Configuration file for orderbook analysis
+
+# Data fetching parameters
+data:
+  instrument_id: "SSE.10009482"  # 合约代码
+  exchange: "SSE"               # 交易所
+  start_date: 20250801          # 开始日期 (YYYYMMDD格式)
+  end_date: 20250801            # 结束日期 (YYYYMMDD格式)
+
+# Analysis parameters
+analysis:
+  window_size: 10               # 计算窗口大小
+  enable_order_flow: true       # 是否启用订单流分析
+
+# Output settings
+output:
+  save_plots: true              # 是否保存图表
+  plot_directory: "output"      # 图表保存目录
