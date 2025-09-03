@@ -4,13 +4,10 @@
 识别订单流中的各种模式，包括订单流变化、累积订单流等。
 """
 
-from typing import Dict, List
-
-from loguru import logger
 import numpy as np
 import pandas as pd
 
-from src.analysis.pattern.pattern_recognition import register_pattern
+from src.meta import register_pattern
 
 
 @register_pattern("order_flow_patterns")

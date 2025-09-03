@@ -4,14 +4,11 @@
 基于订单流数据构建各种特征，包括订单流变化、累积订单流等。
 """
 
-from typing import Dict, List
-
-from loguru import logger
 import numpy as np
 import pandas as pd
 
-from src.analysis.feature.feature_construction import register_feature
 from src.analysis.order_flow_np import calculate_order_book_delta_numpy
+from src.meta import register_feature
 
 
 @register_feature("order_flow_features")

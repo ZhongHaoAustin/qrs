@@ -4,12 +4,10 @@
 识别订单簿中的不平衡模式，包括大单不平衡等。
 """
 
-from typing import Any
-
 import numpy as np
 import pandas as pd
 
-from src.analysis.pattern.pattern_recognition import register_pattern
+from src.meta import register_pattern
 
 
 @register_pattern("large_order_imbalance")

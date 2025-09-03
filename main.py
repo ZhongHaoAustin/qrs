@@ -54,7 +54,7 @@ def main(config_path: str):
         # Perform analysis
         if config["analysis"]["enable_order_flow"]:
             logger.info("Calculating order flow indicators")
-            df = calculate_order_flow(df, config["analysis"]["window_size"])
+            df = calculate_order_book_delta_numpy(df, config["analysis"]["window_size"])
 
             if df is None:
                 logger.error("Order flow calculation failed")

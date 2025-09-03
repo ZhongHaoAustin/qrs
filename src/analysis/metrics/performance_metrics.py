@@ -4,9 +4,8 @@
 提供策略和模型性能相关的评估指标。
 """
 
-from typing import Dict, List
+from typing import Dict
 
-from loguru import logger
 import numpy as np
 import pandas as pd
 

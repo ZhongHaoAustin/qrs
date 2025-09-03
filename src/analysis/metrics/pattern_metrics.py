@@ -10,7 +10,7 @@ from loguru import logger
 import numpy as np
 import pandas as pd
 
-from src.analysis.metrics.evaluation_metrics import register_metric
+from src.meta import register_metric
 
 
 @register_metric("pattern_effectiveness")

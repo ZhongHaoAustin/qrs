@@ -4,13 +4,12 @@
 基于价格和成交量数据构建技术指标特征。
 """
 
-from typing import Dict, List
+from typing import Dict
 
-from loguru import logger
 import numpy as np
 import pandas as pd
 
-from src.analysis.feature.feature_construction import register_feature
+from src.meta import register_feature
 
 
 @register_feature("technical_indicators")

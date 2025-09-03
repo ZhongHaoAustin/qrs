@@ -4,14 +4,12 @@
 提供预测模型相关的评估指标。
 """
 
-from typing import Dict, List
+from typing import Dict
 
-from loguru import logger
-import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
-from src.analysis.metrics.evaluation_metrics import register_metric
+from src.meta import register_metric
 
 
 @register_metric("prediction_accuracy")

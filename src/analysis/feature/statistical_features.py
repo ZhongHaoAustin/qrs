@@ -4,14 +4,10 @@
 基于数据统计特性构建特征，包括分布特征、相关性特征等。
 """
 
-from typing import Dict, List
-
-from loguru import logger
 import numpy as np
 import pandas as pd
-from scipy import stats
 
-from src.analysis.feature.feature_construction import register_feature
+from src.meta import register_feature
 
 
 @register_feature("statistical_features")
