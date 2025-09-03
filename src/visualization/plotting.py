@@ -483,9 +483,7 @@ def create_volume_and_delta_plot(
     return p
 
 
-def create_layout(
-    p1: Any, p2: Any, p3: Any = None, p4: Any = None
-) -> Any:
+def create_layout(p1: Any, p2: Any, p3: Any = None, p4: Any = None) -> Any:
     """Create the combined layout."""
     if p4 is not None:
         return column(p1, p2, p3, p4, spacing=20, sizing_mode="stretch_width")
@@ -511,22 +509,22 @@ def save_plot(layout: Any, filename: str) -> None:
 def add_pattern_markers(
     plot_figure: Any,
     pattern_data: pd.DataFrame,
-    marker_config: Optional[Dict[str, Any]] = None
+    marker_config: Optional[Dict[str, Any]] = None,
 ) -> Any:
     """
     Add scatter markers to indicate identified scalping patterns on price plots.
-    
+
     Args:
         plot_figure: The bokeh figure to add markers to
         pattern_data: DataFrame containing pattern detection results
         marker_config: Configuration for marker appearance
-        
+
     Returns:
         The updated figure with pattern markers
     """
     if pattern_data.empty:
         return plot_figure
-        
+
     # Default marker configuration
     default_config = {
         "price_before_bid_move": {
@@ -534,87 +532,107 @@ def add_pattern_markers(
             "size": 12,
             "color": "#ff4444",  # Red for bid moves (down)
             "alpha": 0.8,
-            "legend_label": "Price Before Bid Move"
+            "legend_label": "Price Before Bid Move",
         },
         "price_after_bid_move": {
             "marker": "inverted_triangle",
             "size": 12,
             "color": "#ff8888",  # Light red for after bid moves
             "alpha": 0.8,
-            "legend_label": "Price After Bid Move"
+            "legend_label": "Price After Bid Move",
         },
         "price_before_ask_move": {
             "marker": "triangle",
             "size": 12,
             "color": "#44ff44",  # Green for ask moves (up)
             "alpha": 0.8,
-            "legend_label": "Price Before Ask Move"
+            "legend_label": "Price Before Ask Move",
         },
         "price_after_ask_move": {
             "marker": "inverted_triangle",
             "size": 12,
             "color": "#88ff88",  # Light green for after ask moves
             "alpha": 0.8,
-            "legend_label": "Price After Ask Move"
+            "legend_label": "Price After Ask Move",
         },
         "complete_scalping": {
             "marker": "diamond",
             "size": 20,
             "color": "#ffaa00",  # Orange for complete cycles
             "alpha": 0.9,
-            "legend_label": "Complete Scalping"
-        }
+            "legend_label": "Complete Scalping",
+        },
     }
-    
+
     if marker_config:
         # Update default config with user provided config
         for key, value in marker_config.items():
             if key in default_config:
                 default_config[key].update(value)
-    
+
     # Add price before bid move markers
-    if "bid_timestamp" in pattern_data.columns and "price_before_bid_move" in pattern_data.columns:
-        bid_source = ColumnDataSource(data=dict(
-            timestamp=pd.to_datetime(pattern_data["bid_timestamp"]).tolist(),
-            price=pattern_data["price_before_bid_move"].tolist(),
-            excess_volume=[pattern_data.get("excess_ask_volume", 0)] * len(pattern_data),
-            symbol=pattern_data.get("bid_symbol", pd.Series([""] * len(pattern_data))).astype(str).tolist()
-        ))
-        
+    if (
+        "bid_timestamp" in pattern_data.columns
+        and "price_before_bid_move" in pattern_data.columns
+    ):
+        bid_source = ColumnDataSource(
+            data=dict(
+                timestamp=pd.to_datetime(pattern_data["bid_timestamp"]).tolist(),
+                price=pattern_data["price_before_bid_move"].tolist(),
+                excess_volume=[pattern_data.get("excess_ask_volume", 0)]
+                * len(pattern_data),
+                symbol=pattern_data.get(
+                    "bid_symbol", pd.Series([""] * len(pattern_data))
+                )
+                .astype(str)
+                .tolist(),
+            )
+        )
+
         config = default_config["price_before_bid_move"]
         plot_figure.scatter(
             x="timestamp",
-            y="price", 
+            y="price",
             source=bid_source,
             marker=config["marker"],
             size=config["size"],
             color=config["color"],
             alpha=config["alpha"],
-            legend_label=config["legend_label"]
+            legend_label=config["legend_label"],
         )
-        
+
         # Add hover for price before bid moves
         bid_hover = HoverTool(
             tooltips=[
                 ("Time", "@timestamp{%H:%M:%S.%3N}"),
                 ("Price", "@price{0.0000}"),
                 ("Excess Volume", "@excess_volume{0,0}"),
-                ("Symbol", "@symbol")
+                ("Symbol", "@symbol"),
             ],
             formatters={"@timestamp": "datetime"},
-            renderers=[plot_figure.renderers[-1]]  # Only for the last added renderer
+            renderers=[plot_figure.renderers[-1]],  # Only for the last added renderer
         )
         plot_figure.add_tools(bid_hover)
-    
+
     # Add price after bid move markers
-    if "bid_timestamp" in pattern_data.columns and "price_after_bid_move" in pattern_data.columns:
-        bid_after_source = ColumnDataSource(data=dict(
-            timestamp=pd.to_datetime(pattern_data["bid_timestamp"]).tolist(),
-            price=pattern_data["price_after_bid_move"].tolist(),
-            excess_volume=[pattern_data.get("excess_ask_volume", 0)] * len(pattern_data),
-            symbol=pattern_data.get("bid_symbol", pd.Series([""] * len(pattern_data))).astype(str).tolist()
-        ))
-        
+    if (
+        "bid_timestamp" in pattern_data.columns
+        and "price_after_bid_move" in pattern_data.columns
+    ):
+        bid_after_source = ColumnDataSource(
+            data=dict(
+                timestamp=pd.to_datetime(pattern_data["bid_timestamp"]).tolist(),
+                price=pattern_data["price_after_bid_move"].tolist(),
+                excess_volume=[pattern_data.get("excess_ask_volume", 0)]
+                * len(pattern_data),
+                symbol=pattern_data.get(
+                    "bid_symbol", pd.Series([""] * len(pattern_data))
+                )
+                .astype(str)
+                .tolist(),
+            )
+        )
+
         config = default_config["price_after_bid_move"]
         plot_figure.scatter(
             x="timestamp",
@@ -624,103 +642,133 @@ def add_pattern_markers(
             size=config["size"],
             color=config["color"],
             alpha=config["alpha"],
-            legend_label=config["legend_label"]
+            legend_label=config["legend_label"],
         )
-        
+
         # Add hover for price after bid moves
         bid_after_hover = HoverTool(
             tooltips=[
                 ("Time", "@timestamp{%H:%M:%S.%3N}"),
                 ("Price", "@price{0.0000}"),
                 ("Excess Volume", "@excess_volume{0,0}"),
-                ("Symbol", "@symbol")
+                ("Symbol", "@symbol"),
             ],
             formatters={"@timestamp": "datetime"},
-            renderers=[plot_figure.renderers[-1]]  # Only for the last added renderer
+            renderers=[plot_figure.renderers[-1]],  # Only for the last added renderer
         )
         plot_figure.add_tools(bid_after_hover)
-    
+
     # Add price before ask move markers
-    if "ask_timestamp" in pattern_data.columns and "price_before_ask_move" in pattern_data.columns:
-        ask_source = ColumnDataSource(data=dict(
-            timestamp=pd.to_datetime(pattern_data["ask_timestamp"]).tolist(),
-            price=pattern_data["price_before_ask_move"].tolist(),
-            consumed_volume=[pattern_data.get("volume_consumed", 0)] * len(pattern_data),
-            symbol=pattern_data.get("ask_symbol", pd.Series([""] * len(pattern_data))).astype(str).tolist()
-        ))
-        
+    if (
+        "ask_timestamp" in pattern_data.columns
+        and "price_before_ask_move" in pattern_data.columns
+    ):
+        ask_source = ColumnDataSource(
+            data=dict(
+                timestamp=pd.to_datetime(pattern_data["ask_timestamp"]).tolist(),
+                price=pattern_data["price_before_ask_move"].tolist(),
+                consumed_volume=[pattern_data.get("volume_consumed", 0)]
+                * len(pattern_data),
+                symbol=pattern_data.get(
+                    "ask_symbol", pd.Series([""] * len(pattern_data))
+                )
+                .astype(str)
+                .tolist(),
+            )
+        )
+
         config = default_config["price_before_ask_move"]
         plot_figure.scatter(
             x="timestamp",
             y="price",
-            source=ask_source, 
+            source=ask_source,
             marker=config["marker"],
             size=config["size"],
             color=config["color"],
             alpha=config["alpha"],
-            legend_label=config["legend_label"]
+            legend_label=config["legend_label"],
         )
-        
+
         # Add hover for price before ask moves
         ask_hover = HoverTool(
             tooltips=[
                 ("Time", "@timestamp{%H:%M:%S.%3N}"),
                 ("Price", "@price{0.0000}"),
                 ("Consumed Volume", "@consumed_volume{0,0}"),
-                ("Symbol", "@symbol")
+                ("Symbol", "@symbol"),
             ],
             formatters={"@timestamp": "datetime"},
-            renderers=[plot_figure.renderers[-1]]  # Only for the last added renderer
+            renderers=[plot_figure.renderers[-1]],  # Only for the last added renderer
         )
         plot_figure.add_tools(ask_hover)
-    
+
     # Add price after ask move markers
-    if "ask_timestamp" in pattern_data.columns and "price_after_ask_move" in pattern_data.columns:
-        ask_after_source = ColumnDataSource(data=dict(
-            timestamp=pd.to_datetime(pattern_data["ask_timestamp"]).tolist(),
-            price=pattern_data["price_after_ask_move"].tolist(),
-            consumed_volume=[pattern_data.get("volume_consumed", 0)] * len(pattern_data),
-            symbol=pattern_data.get("ask_symbol", pd.Series([""] * len(pattern_data))).astype(str).tolist()
-        ))
-        
+    if (
+        "ask_timestamp" in pattern_data.columns
+        and "price_after_ask_move" in pattern_data.columns
+    ):
+        ask_after_source = ColumnDataSource(
+            data=dict(
+                timestamp=pd.to_datetime(pattern_data["ask_timestamp"]).tolist(),
+                price=pattern_data["price_after_ask_move"].tolist(),
+                consumed_volume=[pattern_data.get("volume_consumed", 0)]
+                * len(pattern_data),
+                symbol=pattern_data.get(
+                    "ask_symbol", pd.Series([""] * len(pattern_data))
+                )
+                .astype(str)
+                .tolist(),
+            )
+        )
+
         config = default_config["price_after_ask_move"]
         plot_figure.scatter(
             x="timestamp",
             y="price",
-            source=ask_after_source, 
+            source=ask_after_source,
             marker=config["marker"],
             size=config["size"],
             color=config["color"],
             alpha=config["alpha"],
-            legend_label=config["legend_label"]
+            legend_label=config["legend_label"],
         )
-        
+
         # Add hover for price after ask moves
         ask_after_hover = HoverTool(
             tooltips=[
                 ("Time", "@timestamp{%H:%M:%S.%3N}"),
                 ("Price", "@price{0.0000}"),
                 ("Consumed Volume", "@consumed_volume{0,0}"),
-                ("Symbol", "@symbol")
+                ("Symbol", "@symbol"),
             ],
             formatters={"@timestamp": "datetime"},
-            renderers=[plot_figure.renderers[-1]]  # Only for the last added renderer
+            renderers=[plot_figure.renderers[-1]],  # Only for the last added renderer
         )
         plot_figure.add_tools(ask_after_hover)
-    
+
     # Add complete scalping cycle markers (highlight cycles that completed successfully)
     if "is_complete_scalping" in pattern_data.columns:
         complete_patterns = pattern_data[pattern_data["is_complete_scalping"] == True]
-        
+
         if not complete_patterns.empty and "bid_timestamp" in complete_patterns.columns:
-            complete_source = ColumnDataSource(data=dict(
-                timestamp=pd.to_datetime(complete_patterns["bid_timestamp"]).tolist(),
-                price=complete_patterns["price_before_bid_move"].tolist(),
-                time_gap=[complete_patterns.get("time_gap_2_move", 0)] * len(complete_patterns),
-                total_volume=[complete_patterns.get("total_scalping_volume", 0)] * len(complete_patterns),
-                symbol=complete_patterns.get("bid_symbol", pd.Series([""] * len(complete_patterns))).astype(str).tolist()
-            ))
-            
+            complete_source = ColumnDataSource(
+                data=dict(
+                    timestamp=pd.to_datetime(
+                        complete_patterns["bid_timestamp"]
+                    ).tolist(),
+                    price=complete_patterns["price_before_bid_move"].tolist(),
+                    time_gap=[complete_patterns.get("time_gap_2_move", 0)]
+                    * len(complete_patterns),
+                    total_volume=[complete_patterns.get("total_scalping_volume", 0)]
+                    * len(complete_patterns),
+                    symbol=complete_patterns.get(
+                        "bid_symbol", pd.Series([""] * len(complete_patterns))
+                    )
+                    .astype(str)
+                    .tolist(),
+                )
+            )
+
             config = default_config["complete_scalping"]
             plot_figure.scatter(
                 x="timestamp",
@@ -730,9 +778,9 @@ def add_pattern_markers(
                 size=config["size"],
                 color=config["color"],
                 alpha=config["alpha"],
-                legend_label=config["legend_label"]
+                legend_label=config["legend_label"],
             )
-            
+
             # Add hover for complete scalping cycles
             complete_hover = HoverTool(
                 tooltips=[
@@ -740,80 +788,95 @@ def add_pattern_markers(
                     ("Price", "@price{0.0000}"),
                     ("Time Gap", "@time_gap{0.0}s"),
                     ("Total Volume", "@total_volume{0,0}"),
-                    ("Symbol", "@symbol")
+                    ("Symbol", "@symbol"),
                 ],
                 formatters={"@timestamp": "datetime"},
-                renderers=[plot_figure.renderers[-1]]  # Only for the last added renderer
+                renderers=[
+                    plot_figure.renderers[-1]
+                ],  # Only for the last added renderer
             )
             plot_figure.add_tools(complete_hover)
-    
+
     return plot_figure
 
 
 def create_scalping_pattern_markers_source(
-    pattern_data: pd.DataFrame,
-    pattern_type: str = "merged"
+    pattern_data: pd.DataFrame, pattern_type: str = "merged"
 ) -> Dict[str, ColumnDataSource]:
     """
     Create ColumnDataSource objects for different types of scalping pattern markers.
-    
+
     Args:
         pattern_data: DataFrame with pattern data
         pattern_type: Type of patterns ("bid", "ask", "merged")
-        
+
     Returns:
         Dictionary of ColumnDataSource objects for each marker type
     """
     sources = {}
-    
+
     if pattern_type == "bid" and not pattern_data.empty:
         # Create source for bid patterns
-        sources["bid_patterns"] = ColumnDataSource({
-            "timestamp": pd.to_datetime(pattern_data["timestamp"]),
-            "price": pattern_data["price_before_bid_move"],
-            "delta": pattern_data["bid_delta1"],
-            "excess_volume": pattern_data.get("excess_ask_volume", 0),
-            "symbol": pattern_data["symbol"]
-        })
-    
+        sources["bid_patterns"] = ColumnDataSource(
+            {
+                "timestamp": pd.to_datetime(pattern_data["timestamp"]),
+                "price": pattern_data["price_before_bid_move"],
+                "delta": pattern_data["bid_delta1"],
+                "excess_volume": pattern_data.get("excess_ask_volume", 0),
+                "symbol": pattern_data["symbol"],
+            }
+        )
+
     elif pattern_type == "ask" and not pattern_data.empty:
-        # Create source for ask patterns  
-        sources["ask_patterns"] = ColumnDataSource({
-            "timestamp": pd.to_datetime(pattern_data["timestamp"]),
-            "price": pattern_data["price_before_ask_move"],
-            "delta": pattern_data["ask_delta1"],
-            "consumed_volume": pattern_data.get("volume_consumed", 0),
-            "symbol": pattern_data["symbol"]
-        })
-    
+        # Create source for ask patterns
+        sources["ask_patterns"] = ColumnDataSource(
+            {
+                "timestamp": pd.to_datetime(pattern_data["timestamp"]),
+                "price": pattern_data["price_before_ask_move"],
+                "delta": pattern_data["ask_delta1"],
+                "consumed_volume": pattern_data.get("volume_consumed", 0),
+                "symbol": pattern_data["symbol"],
+            }
+        )
+
     elif pattern_type == "merged" and not pattern_data.empty:
         # Create sources for merged patterns
         if "bid_timestamp" in pattern_data.columns:
-            sources["bid_moves"] = ColumnDataSource({
-                "timestamp": pd.to_datetime(pattern_data["bid_timestamp"]),
-                "price": pattern_data["price_before_bid_move"],
-                "excess_volume": pattern_data.get("excess_ask_volume", 0),
-                "symbol": pattern_data.get("bid_symbol", "")
-            })
-        
+            sources["bid_moves"] = ColumnDataSource(
+                {
+                    "timestamp": pd.to_datetime(pattern_data["bid_timestamp"]),
+                    "price": pattern_data["price_before_bid_move"],
+                    "excess_volume": pattern_data.get("excess_ask_volume", 0),
+                    "symbol": pattern_data.get("bid_symbol", ""),
+                }
+            )
+
         if "ask_timestamp" in pattern_data.columns:
-            sources["ask_moves"] = ColumnDataSource({
-                "timestamp": pd.to_datetime(pattern_data["ask_timestamp"]),
-                "price": pattern_data["price_after_ask_move"],
-                "consumed_volume": pattern_data.get("volume_consumed", 0), 
-                "symbol": pattern_data.get("ask_symbol", "")
-            })
-        
+            sources["ask_moves"] = ColumnDataSource(
+                {
+                    "timestamp": pd.to_datetime(pattern_data["ask_timestamp"]),
+                    "price": pattern_data["price_after_ask_move"],
+                    "consumed_volume": pattern_data.get("volume_consumed", 0),
+                    "symbol": pattern_data.get("ask_symbol", ""),
+                }
+            )
+
         # Complete scalping cycles
         if "is_complete_scalping" in pattern_data.columns:
-            complete_patterns = pattern_data[pattern_data["is_complete_scalping"] == True]
+            complete_patterns = pattern_data[
+                pattern_data["is_complete_scalping"] == True
+            ]
             if not complete_patterns.empty:
-                sources["complete_scalping"] = ColumnDataSource({
-                    "timestamp": pd.to_datetime(complete_patterns["bid_timestamp"]),
-                    "price": complete_patterns["price_before_bid_move"],
-                    "time_gap": complete_patterns.get("time_gap_2_move", 0),
-                    "total_volume": complete_patterns.get("total_scalping_volume", 0),
-                    "symbol": complete_patterns.get("bid_symbol", "")
-                })
-    
+                sources["complete_scalping"] = ColumnDataSource(
+                    {
+                        "timestamp": pd.to_datetime(complete_patterns["bid_timestamp"]),
+                        "price": complete_patterns["price_before_bid_move"],
+                        "time_gap": complete_patterns.get("time_gap_2_move", 0),
+                        "total_volume": complete_patterns.get(
+                            "total_scalping_volume", 0
+                        ),
+                        "symbol": complete_patterns.get("bid_symbol", ""),
+                    }
+                )
+
     return sources
