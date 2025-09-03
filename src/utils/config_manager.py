@@ -1,24 +1,26 @@
 """
 Configuration management utilities.
 """
-import yaml
+
 from pathlib import Path
+from typing import Any, Dict
+
 from loguru import logger
-from typing import Dict, Any
+import yaml
 
 
 def load_config(config_path: str) -> Dict[Any, Any]:
     """
     Load configuration from YAML file.
-    
+
     Args:
         config_path (str): Path to the YAML configuration file
-        
+
     Returns:
         dict: Configuration dictionary
     """
     try:
-        with open(config_path, 'r', encoding='utf-8') as file:
+        with open(config_path, "r", encoding="utf-8") as file:
             config = yaml.safe_load(file)
         logger.info(f"Configuration loaded successfully from {config_path}")
         return config

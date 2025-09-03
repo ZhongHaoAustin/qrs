@@ -1,7 +1,6 @@
-from typing import Any
-
-
 from pathlib import Path
+import re
+from typing import Any
 
 from ck_utils import ck_str_keep_trading_hours
 import numpy as np
@@ -95,6 +94,8 @@ def fetch_tick_data_range(
         'ask_price5', 'ask_volume5', 'instrument_id', 'localtime'],
         dtype='object')
     """
+    # 正则匹配所有数字，只保留数字
+    instrument_id = re.sub(r"\D", "", instrument_id)
     with gen_client() as client:
         df: Any = client.query_df(
             query=f"""

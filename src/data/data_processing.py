@@ -1,12 +1,11 @@
-from pandas.core.frame import DataFrame
-
+from datetime import time
+from typing import Optional, Union
 
 from bokeh.models import ColumnDataSource
 from loguru import logger
 import numpy as np
 import pandas as pd
-from datetime import time
-from typing import Union, Optional
+from pandas.core.frame import DataFrame
 
 
 def prepare_data(df: pd.DataFrame) -> pd.DataFrame:
@@ -56,32 +55,33 @@ def filter_trading_hours(df: pd.DataFrame, dt_col_name="datetime") -> pd.DataFra
     """Filter data to keep only trading hours: 9:30-11:30 and 13:00-15:00."""
     if df.empty:
         return df
-        
+
     df = df.copy()
-    
+
     # First filter out NaT values to avoid NaTType attribute access issues
     valid_datetime_mask = df[dt_col_name].notna()
     df_filtered = df.loc[valid_datetime_mask].copy()
-    
+
     if df_filtered.empty:
         return df_filtered
-    
+
     # Extract time as datetime.time objects
     df_filtered["time"] = df_filtered[dt_col_name].dt.time
-    
+
     # Create time objects for comparison using datetime.time
-    morning_start = time(9, 30, 0)   # 09:30:00
-    morning_end = time(11, 30, 0)    # 11:30:00
-    afternoon_start = time(13, 0, 0) # 13:00:00
-    afternoon_end = time(15, 0, 0)   # 15:00:00
-    
+    morning_start = time(9, 30, 0)  # 09:30:00
+    morning_end = time(11, 30, 0)  # 11:30:00
+    afternoon_start = time(13, 0, 0)  # 13:00:00
+    afternoon_end = time(15, 0, 0)  # 15:00:00
+
     # Filter for trading hours (morning session and afternoon session)
     trading_hours_filter = (
         (df_filtered["time"] >= morning_start) & (df_filtered["time"] <= morning_end)
     ) | (
-        (df_filtered["time"] >= afternoon_start) & (df_filtered["time"] <= afternoon_end)
+        (df_filtered["time"] >= afternoon_start)
+        & (df_filtered["time"] <= afternoon_end)
     )
-    
+
     result_df = df_filtered.loc[trading_hours_filter].copy()
     result_df = result_df.drop("time", axis=1)
     return result_df
@@ -128,14 +128,14 @@ def filter_open_close_time(
         return df
 
     df = df.copy()
-    
+
     # Filter out NaT values first
     valid_datetime_mask = df["datetime"].notna()
     df_filtered = df.loc[valid_datetime_mask].copy()
-    
+
     if df_filtered.empty:
         return df_filtered
-    
+
     df_filtered["date"] = df_filtered["datetime"].dt.date
     df_filtered["time"] = df_filtered["datetime"].dt.time
 
@@ -146,13 +146,13 @@ def filter_open_close_time(
     if open_minute >= 60:
         open_hour += open_minute // 60
         open_minute: int = open_minute % 60
-    
+
     close_hour = 15
     close_minute = 0 - close_minutes
     if close_minute < 0:
         close_hour += close_minute // 60  # This will subtract 1 from hour
         close_minute: int = 60 + (close_minute % 60)
-    
+
     open_limit: time = time(hour=open_hour, minute=open_minute, second=0)
     close_limit: time = time(hour=close_hour, minute=close_minute, second=0)
 
@@ -221,7 +221,7 @@ def merge_data_standard(
     valid_how = ["left", "right", "inner", "outer", "cross"]
     if how not in valid_how:
         how = "inner"  # Default fallback
-    
+
     return pd.merge(
         left=opt_data,
         right=udly_data,
@@ -525,9 +525,7 @@ def filter_based_on_parameters(
     # Apply filters based on parameters
     # Filter for false breakouts (high cancel ratio)
     if "cancel_ratio" in df.columns:
-        df["false_breakout"] = (
-            df["cancel_ratio"] > parameters["cancel_ratio_threshold"]
-        )
+        df["false_breakout"] = df["cancel_ratio"] > parameters["cancel_ratio_threshold"]
     else:
         df["false_breakout"] = False
 
