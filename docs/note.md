@@ -1,5 +1,6 @@
 问题：
-- 定价：中间价+平滑后的basis+持仓调整？
+- 定价
+    - 中间价+平滑后的basis+持仓调整（单位为tick，调整的细节尚不明确）？
 - 交易统计
     - 系统运行状态有几类？
     - 周转率，资金周转率，换手率计算公式，持仓调整的含义
@@ -17,22 +18,51 @@
     - hedge off指的是关掉对冲吗
     - 怎么理解hedge tradevalue？
     - hedge NextExposure按照配平公式对冲，当不能整数配平时，多头端是否会保留一定的敞口
-    - ArbiTrade是什么
-    - SH to SZ（或者反过来）是什么意思
-    - 提交后还要确认才能生效
-    - reset是清空submit吗？
-- 怎么理解 c.control.DoubleWide：双边同时执行宽报价
-- c.check的作用，不满足的话会如何应对
-- c.hit.MinQuoteCap：应该是最小报单手（100股）数？
-- 为什么最小tick为0.0001？
-- 净暴露是如何计算的（ETF和对冲期货的配平关系，特别是使用不同期货合约对冲的时候）
-
-
-推测：
-- 
-- 
-- 
-
-
-
-
+    - ArbiTrade是什么，开启套利交易的开关？
+    - SH to SZ（或者反过来）是什么意思？
+    - 提交（submit）后还要确认（comfirm）才能生效
+    - reset按钮是清空submit的更改吗？
+- 参数相关
+    - arbi：套利相关
+        - 基差套利相关参数
+        - CloseCmd/OpenCmd，套利开关？
+        - ETFbasisMulti：ETF和期货的（面值）配平系数。
+        - arbi.Low/highBasisThre 基差套利阈值，低买高卖。
+        - MinTradeUnit，最小交易单位，如**200000,1,1,1**，200000是什么（金额）？1应该是1手股指期货。
+        - FirstLeg和FirstSendInstr的区别？样例数据中都是IF2506。
+        - OrderMaxSendTimes:12，什么意思？
+        - First/SecondOrderPriceMulti：2，在MinTradeUnit上乘的订单量系数？
+        - TradeCap：基差套利可用资金？
+        - OrderMaxStayTime：尚且不清楚基差套利交易细节，猜测是先后发两个订单，等待成交，如果双边成交量未配平，该如何处理剩余敞口？
+    - c.check的作用，不满足该类参数要求的话系统会如何应对，是否不报价？
+    - c.exception，触发异常后如何应对？熔断？
+        - c.exception.MaxActiveExposure最大主动保留是什么？
+         - 在exception参数类型下存在定价相关参数：c.exception.OffsetCreate，c.exception.OffsetMax，c.exception.OffsetPull
+    - c.hit
+        - MinQuoteCap：静态数据为2000，单位推测是元
+    - c.quote
+        - quote和hit的区别是什么？
+        - CalendarBasis的含义，是否是剔除了持有成本因素的基差？
+        - **AdjPerCap/Future/Pos：根据持仓面值/期货持仓/ETF持仓调整报价？**
+    - c.outer
+        - 外层报价，交易所规定了做市商的最小申报金额，推测做市商在等待成交订单簿上的单边金额不得小于最小申报金额。
+        - MinQuoteCap为200500
+    - c.outadj
+        - 是外层报价的调整值？ETF和期货持仓会影响该值
+    - c.risk
+        - 突破阈值后系统会如何做出应对？
+        - MaxTradeablePosRatio的含义，是否等于昨仓/今仓
+    - c.control
+        - 怎么理解DoubleWide，双边同时执行宽报价，指的是报两层吗
+    - c.inst
+        - 标的相关参数
+        - PriceRateFlag比例定价标志的含义是什么，如何用来定价
+    - c.open/close
+        - 开/收盘集合竞价阶段的相关参数
+    - c.fast
+        - 开盘fast阶段，波动较大，特殊处理（现阶段应该尚未实现）
+        - FastMdCnt:60的含义是什么？
+    - c.short
+        - 卖空相关
+    - c.obli
+        - 义务相关
