@@ -8,14 +8,10 @@
 - 成交量模式识别
 """
 
-from meta.pattern_recognition import identify_patterns, register_pattern
-
 from src.analysis.pattern.order_flow_patterns import identify_order_flow_patterns
 from src.analysis.pattern.order_imbalance import identify_large_order_imbalance
 
 __all__ = [
-    "identify_patterns",
-    "register_pattern",
     "identify_large_order_imbalance",
     "identify_order_flow_patterns",
 ]

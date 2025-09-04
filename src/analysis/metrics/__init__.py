@@ -8,14 +8,11 @@
 - 特征重要性指标
 """
 
-from src.analysis.metrics.evaluation_metrics import calculate_metrics, register_metric
 from src.analysis.metrics.pattern_metrics import calculate_pattern_effectiveness
 from src.analysis.metrics.performance_metrics import calculate_performance_metrics
 from src.analysis.metrics.prediction_metrics import calculate_prediction_accuracy
 
 __all__ = [
-    "calculate_metrics",
-    "register_metric",
     "calculate_prediction_accuracy",
     "calculate_performance_metrics",
     "calculate_pattern_effectiveness",

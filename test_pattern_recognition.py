@@ -13,11 +13,9 @@ import pandas as pd
 # 添加src到路径
 sys.path.append(str(Path(__file__).parent))
 
-from src.analysis.evaluation_metrics import calculate_metrics, register_metric
-from src.analysis.feature_construction import build_features, register_feature
 from src.analysis.order_flow_np import calculate_order_book_delta_numpy
-from src.analysis.pattern_recognition import identify_patterns, register_pattern
 from src.data.data_processing import prepare_data
+from src.meta import build_features, calculate_metrics, identify_patterns
 
 # 设置日志
 logger.remove()
